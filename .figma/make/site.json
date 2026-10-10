@@ -1,0 +1,10 @@
+{
+  "description": "Streamline project workflows with an intuitive platform that automates tasks, enhances collaboration, and boosts team productivity.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

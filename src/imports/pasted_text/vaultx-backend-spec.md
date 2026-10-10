@@ -1,0 +1,438 @@
+IMPORTANT: CONTINUE FROM THE EXISTING VAULTX PROJECT.
+DO NOT REDESIGN OR REGENERATE THE EXISTING UI.
+DO NOT CREATE DUPLICATE SCREENS.
+KEEP ALL EXISTING UI, COMPONENTS, LAYOUTS, COLORS, RESPONSIVENESS AND USER FLOWS.
+ONLY IMPLEMENT THE MISSING BACKEND AND REAL SECURITY FUNCTIONALITY.
+
+PROJECT:
+VaultX – Secure Question Paper Management System
+
+CURRENT STATUS:
+The existing project is a React + TypeScript + Tailwind frontend prototype with mock data.
+It already contains the dashboards, vault, paper upload UI, dual authorization UI, time-lock UI, secure viewer, audit logs, security monitoring, users, exams, notifications and settings.
+
+GOAL:
+Convert the existing frontend prototype into a REAL WORKING FULL-STACK APPLICATION.
+
+IMPORTANT CREDIT-SAVING RULE:
+- Reuse all existing screens and components.
+- Do not regenerate UI unless absolutely necessary.
+- Do not create alternative designs.
+- Do not add unnecessary animations or pages.
+- Focus credits on backend integration, database, authentication, encryption and security logic.
+- Modify existing files instead of creating duplicate implementations.
+- Keep the current visual design exactly as much as possible.
+
+TECH STACK:
+
+Frontend:
+- React
+- TypeScript
+- Tailwind CSS
+
+Backend:
+- Node.js
+- Express.js
+
+Database:
+- MongoDB
+- Mongoose
+
+Authentication:
+- JWT
+- bcrypt
+- OTP verification
+
+Encryption:
+- Node.js crypto
+- AES-256-GCM
+
+File Storage:
+- Store encrypted files on the server for the prototype.
+- Never expose the original unencrypted PDF through a public URL.
+
+CORE SECURITY REQUIREMENT:
+
+The question paper must NEVER be stored as an ordinary readable PDF after upload.
+
+FLOW:
+
+Question Paper PDF
+        ↓
+Backend receives file
+        ↓
+Generate unique encryption key
+        ↓
+AES-256-GCM encryption
+        ↓
+Store encrypted file
+        ↓
+Store required encryption metadata securely
+        ↓
+Delete/remove plaintext uploaded file
+        ↓
+Paper status = LOCKED
+
+DECRYPTION MUST ONLY BE POSSIBLE WHEN:
+
+1. Manager 1 has approved
+2. Manager 2 has approved
+3. Current server time is inside the allowed unlock window
+4. User is authenticated
+5. User has the required role/permission
+
+IMPORTANT:
+These conditions MUST be checked on the backend.
+Do NOT rely on frontend JavaScript for security decisions.
+
+DUAL AUTHORIZATION:
+
+Create real approval records in MongoDB.
+
+Example:
+
+Paper:
+DBMS End Semester
+
+Manager 1:
+APPROVED
+
+Manager 2:
+PENDING
+
+Result:
+PAPER REMAINS LOCKED
+
+Only after both approvals:
+
+Manager 1 ✓
+Manager 2 ✓
+Time ✓
+
+can the backend allow decryption.
+
+A single manager must NEVER be able to unlock a paper.
+
+TIME-BASED ACCESS:
+
+Each paper must have:
+- examDate
+- examStartTime
+- unlockTime
+- expiryTime
+
+Example:
+
+Exam:
+10:00 AM
+
+Unlock:
+09:30 AM
+
+Before 09:30:
+LOCKED
+
+09:30 onwards:
+If both approvals exist → AVAILABLE
+
+After expiry:
+EXPIRED / LOCKED
+
+Use SERVER TIME, not browser/client time.
+
+AUTHENTICATION:
+
+Replace all hard-coded/demo login credentials.
+
+Implement:
+- User registration by Admin
+- Password hashing using bcrypt
+- JWT login
+- Role-based authorization
+- OTP verification for sensitive actions
+- Logout/session handling
+
+ROLES:
+
+ADMIN
+EXAM_CONTROLLER
+MANAGER_1
+MANAGER_2
+
+PERMISSIONS:
+
+Admin:
+- Manage users
+- Manage exams
+- View all audit logs
+- View security alerts
+
+Exam Controller:
+- Upload question papers
+- Create exams
+- Assign managers
+- View paper status
+
+Manager 1:
+- Approve assigned papers
+
+Manager 2:
+- Approve assigned papers
+
+No user should receive permissions outside their role.
+
+QUESTION PAPER UPLOAD:
+
+Connect the existing upload UI to a real backend API.
+
+Backend should:
+1. Validate PDF
+2. Validate file size
+3. Receive the file
+4. Encrypt it using AES-256-GCM
+5. Store encrypted file
+6. Store metadata
+7. Create audit-log entry
+8. Remove plaintext temporary file
+
+Never store plaintext question papers permanently.
+
+DATABASE MODELS:
+
+User:
+- name
+- email
+- passwordHash
+- role
+- isActive
+- createdAt
+
+Exam:
+- name
+- subject
+- class/course
+- examDate
+- examStartTime
+- unlockTime
+- expiryTime
+- manager1
+- manager2
+
+QuestionPaper:
+- examId
+- encryptedFilePath
+- encryption metadata
+- status
+- uploadedBy
+- createdAt
+
+Approval:
+- paperId
+- managerId
+- approvalType
+- status
+- timestamp
+
+AuditLog:
+- userId
+- action
+- paperId
+- IP address
+- user agent
+- timestamp
+- status
+
+SecurityEvent:
+- userId
+- eventType
+- riskLevel
+- IP
+- timestamp
+- description
+
+AUDIT LOGGING:
+
+Create real audit logs for:
+- Login
+- Failed login
+- Logout
+- Paper upload
+- Encryption
+- Manager 1 approval
+- Manager 2 approval
+- Unlock attempt
+- Successful unlock
+- Failed unlock
+- Paper viewed
+- Print request
+- Suspicious activity
+- User creation
+- User deactivation
+
+The existing Audit Logs UI should read from MongoDB instead of mockData.
+
+SECURITY MONITORING:
+
+Replace fake security alerts with real events generated by the backend.
+
+Initially implement rule-based detection rather than a complicated AI model.
+
+Detect:
+- Multiple failed login attempts
+- Login from a new/unrecognized IP
+- Repeated unlock attempts
+- Access attempts before unlock time
+- Unauthorized role access
+
+Create a security event and show it in the existing Security Monitoring UI.
+
+AI/ML can be added later as an optional module.
+DO NOT waste implementation effort on AI before the core security system works.
+
+SECURE VIEWER:
+
+Connect the existing Secure PDF Viewer to the backend.
+
+When the paper is unlocked:
+- Verify authentication
+- Verify role
+- Verify both approvals
+- Verify server time
+- Decrypt only when all conditions pass
+- Stream/display the decrypted PDF to the authorized session
+- Create an audit-log entry
+
+Do not expose the encrypted storage path publicly.
+
+WATERMARK:
+
+Keep the existing watermark concept.
+
+When viewing/printing, display:
+- VaultX
+- User name
+- Paper ID
+- Timestamp
+
+Use the existing UI design.
+
+IMPORTANT SECURITY TESTS:
+
+Implement backend checks for:
+
+Test 1:
+Manager 1 alone tries to unlock
+→ DENY
+
+Test 2:
+Manager 2 alone tries to unlock
+→ DENY
+
+Test 3:
+Both managers approve but before unlock time
+→ DENY
+
+Test 4:
+Both managers approve + correct time
+→ ALLOW
+
+Test 5:
+Unauthorized role tries to access
+→ DENY
+
+Test 6:
+Unauthenticated user tries to access
+→ DENY
+
+Test 7:
+Expired paper
+→ DENY
+
+Test 8:
+Direct attempt to access encrypted file
+→ DENY
+
+ERROR HANDLING:
+
+Add proper backend errors and connect them to existing UI:
+- Unauthorized
+- Forbidden
+- Paper still locked
+- Approval pending
+- Paper expired
+- Invalid OTP
+- Invalid file
+- Server error
+
+ENVIRONMENT VARIABLES:
+
+Create .env.example containing placeholders for:
+MONGODB_URI
+JWT_SECRET
+OTP_SECRET
+ENCRYPTION_KEY
+PORT
+
+Never hard-code secrets in source code.
+
+PROJECT STRUCTURE:
+
+Keep the existing frontend structure where possible.
+
+Add backend structure similar to:
+
+server/
+  controllers/
+  middleware/
+  models/
+  routes/
+  services/
+  utils/
+  uploads/
+  server.js
+
+Use clean separation between:
+- Authentication
+- Paper management
+- Encryption
+- Authorization
+- Audit logging
+
+FINAL REQUIREMENT:
+
+After implementation, the existing VaultX frontend must actually communicate with the backend.
+
+REMOVE/REPLACE:
+- mockData.ts usage for real application data
+- hard-coded login credentials
+- fake encryption status
+- fake approval state
+- fake audit logs
+- fake security alerts
+- client-only unlock logic
+
+KEEP:
+- Existing UI
+- Existing design
+- Existing navigation
+- Existing dashboards
+- Existing components
+- Existing VaultX branding
+
+The final result should be a working local full-stack VaultX prototype where I can:
+
+1. Login
+2. Create an exam
+3. Upload a PDF
+4. See it become encrypted
+5. Assign Manager 1 and Manager 2
+6. Login as Manager 1 and approve
+7. Login as Manager 2 and approve
+8. Attempt access before unlock time and get DENIED
+9. Reach unlock time
+10. Open the paper
+11. See the paper in the secure viewer
+12. See every action in the audit log
+
+DO NOT spend credits redesigning the application.
+PRIORITIZE REAL FUNCTIONALITY AND SECURITY OVER VISUAL CHANGES.
