@@ -2,6 +2,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { app } = require('./server');
 
+test('trusts a single proxy hop for Render client IP handling', () => {
+  assert.equal(app.get('trust proxy'), 1);
+});
+
 test('health endpoint returns API envelope and database status', async t => {
   const server = app.listen(0);
   t.after(() => new Promise(resolve => server.close(resolve)));

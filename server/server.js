@@ -18,6 +18,7 @@ const storage = require('./services/storage');
 const { releaseDiagnostics } = require('./middleware/releaseDiagnostics');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = Number(process.env.PORT ?? 3001);
 
 // Ensure upload directories exist
