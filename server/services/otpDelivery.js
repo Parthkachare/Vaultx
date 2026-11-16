@@ -14,6 +14,9 @@ async function deliverOtp(email, code, purpose) {
     host: SMTP_HOST,
     port: Number(SMTP_PORT),
     secure: Number(SMTP_PORT) === 465,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 30_000,
     auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
   });
   await transporter.sendMail({
