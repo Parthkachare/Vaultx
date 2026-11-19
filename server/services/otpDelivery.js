@@ -65,7 +65,13 @@ async function deliverWithGmailApi(email, code, purpose, config) {
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
-    const error = new Error(`Gmail API failed to send the OTP (${response.status}).`);
+    const body = await response.json();
+    const reason = typeof body.error?.status === 'string'
+      ? body.error.status
+      : typeof body.error?.errors?.[0]?.reason === 'string'
+        ? body.error.errors[0].reason
+        : 'UNKNOWN';
+    const error = new Error(`Gmail API failed to send the OTP (${response.status}, ${reason}).`);
     error.status = 502;
     throw error;
   }

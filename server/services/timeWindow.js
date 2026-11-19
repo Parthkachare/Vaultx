@@ -17,10 +17,10 @@ function scheduleTimestamp(date, time) {
   const minutes = parseTimeMinutes(time);
   if (minutes === null) return null;
   const [year, month, day] = date.split('-').map(Number);
-  const timestamp = Date.UTC(year, month - 1, day, Math.floor(minutes / 60), minutes % 60);
-  const parsed = new Date(timestamp);
+  const dateTimestamp = Date.UTC(year, month - 1, day);
+  const parsed = new Date(dateTimestamp);
   if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) return null;
-  return timestamp;
+  return dateTimestamp + minutes * 60 * 1000 - 330 * 60 * 1000;
 }
 
 function scheduleInstants(examDate, examStartTime, unlockTime, expiryTime) {

@@ -4,7 +4,7 @@ const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 const { makeEligibility } = require('./papersController');
 
-test('paper response preserves PostgreSQL date-only values in positive UTC offsets', () => {
+test('paper response preserves date-only values and formats schedule times in IST', () => {
   const controllerPath = path.resolve(__dirname, 'papersController.js');
   const script = `
     const { paperResponse } = require(${JSON.stringify(controllerPath)});
@@ -14,13 +14,23 @@ test('paper response preserves PostgreSQL date-only values in positive UTC offse
       unlock_at: new Date('2026-10-10T06:45:00.000Z'),
       expiry_at: new Date('2026-10-10T08:00:00.000Z'),
     });
-    process.stdout.write(paper.examDate);
+    process.stdout.write(JSON.stringify({
+      examDate: paper.examDate,
+      examStartTime: paper.examStartTime,
+      unlockTime: paper.unlockTime,
+      expiryTime: paper.expiryTime,
+    }));
   `;
   const result = execFileSync(process.execPath, ['-e', script], {
     encoding: 'utf8',
     env: { ...process.env, TZ: 'Asia/Kolkata' },
   });
-  assert.equal(result, '2026-10-10');
+  assert.deepEqual(JSON.parse(result), {
+    examDate: '2026-10-10',
+    examStartTime: '12:15',
+    unlockTime: '12:15',
+    expiryTime: '13:30',
+  });
 });
 
 test('release eligibility requires both distinct approval slots and the server-time window', () => {
@@ -41,7 +51,9 @@ test('release eligibility requires both distinct approval slots and the server-t
 
   assert.equal(makeEligibility(paper, manager1Only, insideWindow).reason, 'APPROVAL_PENDING_M2');
   assert.equal(makeEligibility(paper, manager2Only, insideWindow).reason, 'APPROVAL_PENDING_M1');
-  assert.equal(makeEligibility(paper, bothManagers, beforeUnlock).reason, 'BEFORE_UNLOCK_TIME');
+  const beforeUnlockResult = makeEligibility(paper, bothManagers, beforeUnlock);
+  assert.equal(beforeUnlockResult.reason, 'BEFORE_UNLOCK_TIME');
+  assert.equal(beforeUnlockResult.message, 'Paper unlocks at 2026-10-10 12:15 IST.');
   assert.deepEqual(makeEligibility(paper, bothManagers, insideWindow), { allowed: true });
   assert.equal(makeEligibility(paper, bothManagers, afterExpiry).reason, 'AFTER_EXPIRY');
 });

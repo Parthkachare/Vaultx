@@ -60,18 +60,40 @@ function makeEligibility(paper, approvals, now) {
     return { allowed: false, reason: 'INVALID_SCHEDULE', message: 'Paper schedule is invalid. Contact an administrator.' };
   }
   if (nowAt < unlockAt) {
-    return { allowed: false, reason: 'BEFORE_UNLOCK_TIME', message: `Paper unlocks at ${new Date(unlockAt).toISOString()}.` };
+    return { allowed: false, reason: 'BEFORE_UNLOCK_TIME', message: `Paper unlocks at ${formattedIndiaDateTime(unlockAt)}.` };
   }
   if (nowAt > expiryAt) {
     paper.status = 'EXPIRED';
-    return { allowed: false, reason: 'AFTER_EXPIRY', message: `Paper access window expired at ${new Date(expiryAt).toISOString()}.` };
+    return { allowed: false, reason: 'AFTER_EXPIRY', message: `Paper access window expired at ${formattedIndiaDateTime(expiryAt)}.` };
   }
   return { allowed: true };
 }
 
-function formattedUtcTime(value) {
+function formattedIndiaTime(value) {
   const date = new Date(value);
-  return `${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}`;
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const hour = parts.find(part => part.type === 'hour')?.value;
+  const minute = parts.find(part => part.type === 'minute')?.value;
+  return `${hour}:${minute}`;
+}
+
+function formattedIndiaDateTime(value) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(value));
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute} IST`;
 }
 
 function formattedExamDate(value) {
@@ -95,9 +117,9 @@ function paperResponse(row) {
     subject: paper.subject,
     course: paper.course,
     examDate: formattedExamDate(paper.examDate),
-    examStartTime: formattedUtcTime(paper.examStartAt),
-    unlockTime: formattedUtcTime(paper.unlockAt),
-    expiryTime: formattedUtcTime(paper.expiryAt),
+    examStartTime: formattedIndiaTime(paper.examStartAt),
+    unlockTime: formattedIndiaTime(paper.unlockAt),
+    expiryTime: formattedIndiaTime(paper.expiryAt),
     manager1: paper.manager1,
     manager2: paper.manager2,
     manager1Approved: paper.manager1Approved,

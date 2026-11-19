@@ -64,10 +64,10 @@ export default function PaperDetailsPage({ navigate, paperId, role }: Props) {
               {[
                 { label: 'Paper ID', value: paper.id, mono: true },
                 { label: 'Encryption ID', value: paper.encryptionId, mono: true },
-                { label: 'Exam Date (UTC)', value: paper.examDate },
-                { label: 'Start Time (UTC)', value: paper.startTime },
-                { label: 'Unlock Time (UTC)', value: paper.unlockTime },
-                { label: 'Expiry Time (UTC)', value: paper.expiryTime },
+                { label: 'Exam Date (IST)', value: paper.examDate },
+                { label: 'Start Time (IST)', value: paper.startTime },
+                { label: 'Unlock Time (IST)', value: paper.unlockTime },
+                { label: 'Expiry Time (IST)', value: paper.expiryTime },
                 { label: 'Uploaded By', value: paper.uploadedBy },
                 { label: 'Uploaded At', value: paper.uploadedAt },
               ].map(f => (

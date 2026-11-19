@@ -145,8 +145,8 @@ export default function UploadPaperPage({ navigate, userName, userRole }: Props)
     const reviewRows = [
       ['Examination', form.examName],
       ['Subject', `${form.subject} · ${form.course}`],
-      ['Schedule', `${form.examDate} · ${form.startTime}`],
-      ['Access window', `${form.unlockTime} – ${form.expiryTime}`],
+      ['Schedule (IST)', `${form.examDate} · ${form.startTime}`],
+      ['Access window (IST)', `${form.unlockTime} – ${form.expiryTime}`],
       ['Document', `${file?.name} · ${file ? formatBytes(file.size) : ''}`],
       ['Manager 1', selectedManager1],
       ['Manager 2', selectedManager2],
@@ -239,12 +239,12 @@ export default function UploadPaperPage({ navigate, userName, userRole }: Props)
             </section>
 
             <section className={panelClass}>
-              <SectionTitle icon={CalendarClock} title="Time-lock schedule (UTC)" subtitle="The backend evaluates all dates and times in UTC." />
+              <SectionTitle icon={CalendarClock} title="Time-lock schedule (IST)" subtitle="Enter all dates and times in India Standard Time (UTC+05:30)." />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Exam date (UTC)" error={errors.examDate}><input type="date" className={fieldClass} value={form.examDate} onChange={event => set('examDate', event.target.value)} /></Field>
-                <Field label="Exam start (UTC)" error={errors.startTime}><input type="time" className={fieldClass} value={form.startTime} onChange={event => set('startTime', event.target.value)} /></Field>
-                <Field label="Unlock time (UTC)" error={errors.unlockTime}><input type="time" className={fieldClass} value={form.unlockTime} onChange={event => set('unlockTime', event.target.value)} /></Field>
-                <Field label="Access expiry (UTC)" error={errors.expiryTime}><input type="time" className={fieldClass} value={form.expiryTime} onChange={event => set('expiryTime', event.target.value)} /></Field>
+                <Field label="Exam date (IST)" error={errors.examDate}><input type="date" className={fieldClass} value={form.examDate} onChange={event => set('examDate', event.target.value)} /></Field>
+                <Field label="Exam start (IST)" error={errors.startTime}><input type="time" className={fieldClass} value={form.startTime} onChange={event => set('startTime', event.target.value)} /></Field>
+                <Field label="Unlock time (IST)" error={errors.unlockTime}><input type="time" className={fieldClass} value={form.unlockTime} onChange={event => set('unlockTime', event.target.value)} /></Field>
+                <Field label="Access expiry (IST)" error={errors.expiryTime}><input type="time" className={fieldClass} value={form.expiryTime} onChange={event => set('expiryTime', event.target.value)} /></Field>
               </div>
             </section>
 

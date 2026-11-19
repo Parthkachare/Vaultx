@@ -102,9 +102,9 @@ export default function UnlockPage({ navigate, paperId, userName, userRole }: Pr
 
             <div className="grid grid-cols-2 border-b border-border sm:grid-cols-3">
               {[
-                ['Exam date (UTC)', paper.examDate],
-                ['Unlock (UTC)', paper.unlockTime],
-                ['Expires (UTC)', paper.expiryTime],
+                ['Exam date (IST)', paper.examDate],
+                ['Unlock (IST)', paper.unlockTime],
+                ['Expires (IST)', paper.expiryTime],
               ].map(([label, value], index) => (
                 <div key={label} className={`p-4 ${index ? 'border-l border-border' : ''} ${index === 2 ? 'col-span-2 border-l-0 border-t border-border sm:col-span-1 sm:border-l sm:border-t-0' : ''}`}>
                   <p className="text-[10px] uppercase tracking-wider text-slate-600">{label}</p>

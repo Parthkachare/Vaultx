@@ -95,9 +95,9 @@ export default function TimeLockPage({ navigate, paperId }: Props) {
 
             <div className="grid grid-cols-2 border-t border-border sm:grid-cols-3">
               {[
-                ['Exam date (UTC)', paper.examDate],
-                ['Unlock (UTC)', paper.unlockTime],
-                ['Expires (UTC)', paper.expiryTime],
+                ['Exam date (IST)', paper.examDate],
+                ['Unlock (IST)', paper.unlockTime],
+                ['Expires (IST)', paper.expiryTime],
               ].map(([label, value], index) => (
                 <div key={label} className={`p-4 text-center ${index ? 'border-l border-border' : ''} ${index === 2 ? 'col-span-2 border-l-0 border-t border-border sm:col-span-1 sm:border-l sm:border-t-0' : ''}`}>
                   <p className="text-[10px] uppercase tracking-wider text-slate-600">{label}</p>
@@ -153,7 +153,7 @@ export default function TimeLockPage({ navigate, paperId }: Props) {
               <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/15 bg-amber-500/[0.06] text-amber-400"><CalendarClock className="h-3.5 w-3.5" /></div>
               <h2 className="text-sm font-semibold text-white">Access window</h2>
               <p className="mt-2 text-xs leading-relaxed text-slate-500">The document remains unavailable outside the configured window, even after both approvals are complete.</p>
-              <div className="mt-4 flex items-center gap-2 font-mono text-[10px] text-slate-600"><Clock3 className="h-3 w-3" /> UTC schedule · device countdown is informational</div>
+              <div className="mt-4 flex items-center gap-2 font-mono text-[10px] text-slate-600"><Clock3 className="h-3 w-3" /> IST schedule · device countdown is informational</div>
             </div>
           </aside>
         </div>
@@ -171,7 +171,7 @@ function parseScheduledTime(date: string, time: string) {
   if (period === 'PM' && hour !== 12) hour += 12;
   if (period === 'AM' && hour === 12) hour = 0;
   const [year, month, day] = date.split('-').map(Number);
-  return Date.UTC(year, month - 1, day, hour, minute);
+  return Date.UTC(year, month - 1, day, hour, minute) - 330 * 60 * 1000;
 }
 
 function formatCountdown(milliseconds: number) {

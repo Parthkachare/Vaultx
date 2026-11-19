@@ -108,6 +108,36 @@ test('Gmail API delivery rejects incomplete OAuth configuration', async t => {
   });
 });
 
+test('Gmail API delivery reports a safe provider error code', async t => {
+  const keys = ['NODE_ENV', 'GMAIL_CLIENT_ID', 'GMAIL_CLIENT_SECRET', 'GMAIL_REFRESH_TOKEN', 'GMAIL_USER'];
+  const previousEnv = Object.fromEntries(keys.map(key => [key, process.env[key]]));
+  const previousFetch = global.fetch;
+  Object.assign(process.env, {
+    NODE_ENV: 'production',
+    GMAIL_CLIENT_ID: 'test-client-id',
+    GMAIL_CLIENT_SECRET: 'test-client-secret',
+    GMAIL_REFRESH_TOKEN: 'test-refresh-token',
+    GMAIL_USER: 'vaultx.sender@gmail.com',
+  });
+  global.fetch = async url => url === 'https://oauth2.googleapis.com/token'
+    ? new Response(JSON.stringify({ access_token: 'test-access-token' }), { status: 200 })
+    : new Response(JSON.stringify({
+      error: { status: 'ACCESS_TOKEN_SCOPE_INSUFFICIENT', message: 'Sensitive provider details' },
+    }), { status: 403 });
+  t.after(() => {
+    global.fetch = previousFetch;
+    for (const [key, value] of Object.entries(previousEnv)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+
+  await assert.rejects(deliverOtp('manager@gmail.com', '123456', 'login'), {
+    message: /403, ACCESS_TOKEN_SCOPE_INSUFFICIENT/,
+    status: 502,
+  });
+});
+
 test('OTP delivery rejects invalid recipients and purposes', async t => {
   const keys = ['NODE_ENV', 'GMAIL_CLIENT_ID', 'GMAIL_CLIENT_SECRET', 'GMAIL_REFRESH_TOKEN', 'GMAIL_USER'];
   const previousEnv = Object.fromEntries(keys.map(key => [key, process.env[key]]));
